@@ -64,7 +64,7 @@ class EmployeeDirectory extends Component {
   render() {
     return (
       <div>
-        <h1>Welcome to the employee directory.</h1>
+        <h1>Welcome to the Employee Directory!</h1>
         <div className="container">
           <div className="row">
             <div className="col">
@@ -75,7 +75,7 @@ class EmployeeDirectory extends Component {
                       <input
                         type="text"
                         className="form-control"
-                        placeholder="Search employees"
+                        placeholder="Search Employees Here"
                         name="searchTerm"
                         value={this.state.searchTerm}
                         onChange={this.handleChange}
