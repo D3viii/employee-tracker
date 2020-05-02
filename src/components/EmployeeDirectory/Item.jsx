@@ -36,7 +36,7 @@ const Item = (props) => {
       </div>
       <div className="col">{props.id}</div>
       <div className="col">{props.employee_name}</div>
-      <div className="col">{props.employee_salary}</div>
+      <div className="col"> $ {props.employee_salary}</div>
       <div className="col">{props.employee_age}</div>
     </div>
   );
