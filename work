@@ -1,0 +1,63 @@
+<Workflow>
+    <name>Manager Direct Reports Verification</name>
+    <Description>Workflow to verify manager and retrieve direct reports</Description>
+    
+    <TaskFlows>
+        <TaskFlow>
+            <Name>Check Manager Eligibility</Name>
+            <Steps>
+                <!-- Check if current user is a manager -->
+                <Step>
+                    <Name>Verify Manager Status</Name>
+                    <Action>
+                        <Script>
+                            <Source>
+                                importPackage(Packages.sailpoint.api);
+                                importPackage(Packages.sailpoint.object);
+
+                                // Get current user context
+                                var currentUser = context.getUser();
+                                
+                                // Custom filter to check if user is a manager
+                                var filter = Filter.and(
+                                    Filter.eq("manager.id", currentUser.getId()),
+                                    Filter.ne("status", "Terminated")
+                                );
+                                
+                                // Count direct reports
+                                var identityService = context.getObject(IdentityService);
+                                var directReports = identityService.search(filter);
+                                
+                                // Store results for subsequent steps
+                                workflow.set("isManager", directReports.size() > 0);
+                                workflow.set("directReportsCount", directReports.size());
+                                workflow.set("directReports", directReports);
+                            </Source>
+                        </Script>
+                    </Action>
+                </Step>
+                
+                <!-- Conditional step to handle manager reports -->
+                <Step>
+                    <Name>Process Manager Reports</Name>
+                    <Action>
+                        <Script>
+                            <Source>
+                                if (workflow.get("isManager")) {
+                                    var directReports = workflow.get("directReports");
+                                    
+                                    // You can further process direct reports here
+                                    // For example, generate a report, send notifications, etc.
+                                    logger.info("Manager " + context.getUser().getName() + 
+                                               " has " + directReports.size() + " direct reports");
+                                } else {
+                                    logger.info("User is not a manager");
+                                }
+                            </Source>
+                        </Script>
+                    </Action>
+                </Step>
+            </Steps>
+        </TaskFlow>
+    </TaskFlows>
+</Workflow>
