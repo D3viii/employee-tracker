@@ -28,3 +28,25 @@
     </Script>
   </AllowedValuesDefinition>
 </field>
+
+Source>
+        import sailpoint.object.Application;
+        import sailpoint.object.EntitlementDefinition;
+
+        Application app = context.getObjectByName(Application.class, "GLR - GENERAL LEDGER RECONCILIATION COMPLIANCE");
+
+        List values = new ArrayList();
+
+        List entDefs = app.getEntitlementDefinitions();
+        for (EntitlementDefinition def : entDefs) {
+          if ("entitlement".equals(def.getType())) {
+            List ents = def.getValues();
+            if (ents != null) {
+              for (Object val : ents) {
+                values.add(val.toString());
+              }
+            }
+          }
+        }
+
+        return values;
