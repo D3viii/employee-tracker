@@ -50,3 +50,31 @@ Source>
         }
 
         return values;
+
+<field displayName="Roles" dynamic="true" multi="true" name="roles" postBack="true" required="true" type="string">
+  <AllowedValuesDefinition>
+    <Script>
+      <Source>
+        import sailpoint.object.Application;
+        import sailpoint.object.Schema;
+
+        List values = new ArrayList();
+        Application app = context.getObjectByName(Application.class, "GLR - GENERAL LEDGER RECONCILIATION COMPLIANCE");
+
+        if (app != null) {
+          Schema schema = app.getAccountSchema();
+          if (schema != null) {
+            Map attrs = schema.getAttributes();
+            if (attrs != null) {
+              values.addAll(attrs.keySet()); // Just list the attribute names
+            }
+          }
+        }
+
+        return values;
+      </Source>
+    </Script>
+  </AllowedValuesDefinition>
+</field>
+
+
