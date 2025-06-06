@@ -152,3 +152,46 @@ Source>
   </AllowedValuesDefinition>
 </field>
 
+<field displayName="Roles" dynamic="true" multi="true" name="roles" postBack="true" required="true" type="string">
+  <AllowedValuesDefinition>
+    <Script>
+      <Source>
+        import sailpoint.object.Application;
+        import sailpoint.object.Schema;
+
+        List values = new ArrayList();
+
+        Application app = context.getObjectByName(Application.class, "GLR - GENERAL LEDGER RECONCILIATION COMPLIANCE");
+
+        if (app != null) {
+          Schema schema = app.getAccountSchema();
+          if (schema != null) {
+            Map attrs = schema.getAttributes();
+
+            if (attrs != null && attrs.containsKey("entitlement")) {
+              Object rawEntitlements = attrs.get("entitlement");
+
+              // Instead of casting, use instanceof check and iterate
+              try {
+                java.lang.reflect.Method iteratorMethod = rawEntitlements.getClass().getMethod("iterator");
+                java.util.Iterator it = (java.util.Iterator) iteratorMethod.invoke(rawEntitlements);
+
+                while (it.hasNext()) {
+                  Object ent = it.next();
+                  if (ent != null) {
+                    values.add(ent.toString());
+                  }
+                }
+              } catch (Exception e) {
+                values.add("ERROR: " + e.getMessage());
+              }
+            }
+          }
+        }
+
+        return values;
+      </Source>
+    </Script>
+  </AllowedValuesDefinition>
+</field>
+
