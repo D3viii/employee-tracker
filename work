@@ -195,3 +195,16 @@ Source>
   </AllowedValuesDefinition>
 </field>
 
+import sailpoint.object.Application;
+import java.util.List;
+
+List apps = context.getObjects(Application.class);
+for (Application app : apps) {
+    Object rpaFlag = app.getAttribute("rpaProvision");
+    if (rpaFlag != null) {
+        System.out.println("App: " + app.getName() + " | RPA Flag: " + rpaFlag);
+    }
+}
+
+
+
