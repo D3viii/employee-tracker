@@ -257,3 +257,12 @@ for (Application app : apps) {
   </Source>
 </Rule>
 
+Custom custom = context.getObjectByName(Custom.class, "BNYM_PoliciesToCheck_Custom");
+if (custom != null) {
+    Map map = custom.getAttributes();
+    List<String> policies = (List<String>) ((Map) map.get("PoliciesToCheck")).get("value");
+    if (policies != null) {
+        policiesToCheck.addAll(policies);
+    }
+}
+
