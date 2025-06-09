@@ -231,3 +231,29 @@ for (Application app : apps) {
   </Source>
 </Rule>
 
+<Rule name="RPAApplicationsRule" type="Generic">
+  <Description>Generates a list of all applications that have the 'rpaProvision' attribute set.</Description>
+  <Signature returnType="String"/>
+  <Source>
+    <![CDATA[
+    import sailpoint.object.Application;
+    import java.util.List;
+
+    StringBuilder report = new StringBuilder();
+    report.append("Application Name,rpaProvision Value\n");
+
+    List apps = context.getObjects(Application.class);
+
+    for (Application app : apps) {
+        Map attrs = app.getAttributes();
+        if (attrs != null && attrs.containsKey("rpaProvision")) {
+            Object rpaFlag = attrs.get("rpaProvision");
+            report.append(app.getName()).append(",").append(String.valueOf(rpaFlag)).append("\n");
+        }
+    }
+
+    return report.toString();
+    ]]>
+  </Source>
+</Rule>
+
