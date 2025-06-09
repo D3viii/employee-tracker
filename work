@@ -266,3 +266,18 @@ if (custom != null) {
     }
 }
 
+Custom custom = context.getObjectByName(Custom.class, "BNYM_PoliciesToCheck_Custom");
+if (custom != null) {
+    Map attrs = custom.getAttributes();
+    Object obj = attrs.get("PoliciesToCheck");
+    if (obj instanceof List) {
+        List list = (List) obj;
+        for (Object o : list) {
+            if (o instanceof String) {
+                policiesToCheck.add((String) o);
+            }
+        }
+    }
+}
+
+
