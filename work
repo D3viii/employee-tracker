@@ -280,4 +280,34 @@ if (custom != null) {
     }
 }
 
+<Rule name="GetRPAEnabledApplications" language="beanshell" type="Generic" xmlns="sailpoint.object">
+  <Description>
+    This rule searches all applications in the system and returns a list where rpaEnabled == true.
+  </Description>
+  <Source>
+    <![CDATA[
+    import sailpoint.object.Application;
+    import java.util.ArrayList;
+    import java.util.List;
+
+    // List to store applications that have RPA enabled
+    List<Application> rpaApps = new ArrayList<>();
+
+    // Get all applications in the system
+    List<Application> apps = context.getObjects(Application.class);
+
+    // Iterate through and filter by rpaEnabled = true
+    for (Application app : apps) {
+        Object val = app.getAttribute("rpaEnabled");
+        if (val != null && val instanceof Boolean && ((Boolean)val)) {
+            rpaApps.add(app);
+        }
+    }
+
+    // Return the filtered list
+    return rpaApps;
+    ]]>
+  </Source>
+</Rule>
+
 
