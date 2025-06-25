@@ -323,5 +323,29 @@ String pType = (String) pv.get("policyType");       // e.g.  "EntitlementSOD", "
             continue;                       // ← jump to next violation
         }
 
+*/
+    for (Map pv : policyViolations) {
+
+        /* 1️⃣  Grab the policy type (fastest: map key set by IIQ)   */
+        String pType = (String) pv.get("policyType");       // e.g.  "EntitlementSOD", "Advanced"
+
+        /*
+         * 2️⃣  𝙎𝙆𝙄𝙋  if it's an Entitlement-SOD policy
+         *     (add more types if you don’t want them pre-rejected)
+         */
+        if ("EntitlementSOD".equalsIgnoreCase(pType) ||
+            "RoleSOD".equalsIgnoreCase(pType)) {
+            log.debug("Skip pre-reject for SOD policy : " + pv.get("policyName"));
+            continue;                       // ← jump to next violation
+        }
+
+        /* 3️⃣  Anything that reaches here **will** trigger pre-reject   */
+        preReject = true;                   // flag that at least one violation must be auto-rejected
+        break;                              // you can break if one is enough; or keep looping
+    }
+
+    log.error("Exit  preRejectItemsInViolation : " + preReject);
+    return preReject;
+
 
 
