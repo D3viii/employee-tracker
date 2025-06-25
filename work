@@ -311,3 +311,17 @@ if (custom != null) {
 </Rule>
 
 
+String pType = (String) pv.get("policyType");       // e.g.  "EntitlementSOD", "Advanced"
+
+        /*
+         * 2️⃣  𝙎𝙆𝙄𝙋  if it's an Entitlement-SOD policy
+         *     (add more types if you don’t want them pre-rejected)
+         */
+        if ("EntitlementSOD".equalsIgnoreCase(pType) ||
+            "RoleSOD".equalsIgnoreCase(pType)) {
+            log.debug("Skip pre-reject for SOD policy : " + pv.get("policyName"));
+            continue;                       // ← jump to next violation
+        }
+
+
+
