@@ -348,4 +348,40 @@ String pType = (String) pv.get("policyType");       // e.g.  "EntitlementSOD", "
     return preReject;
 
 
+public boolean preRejectItemsInViolation(Workflow workflow) {
 
+    log.error("Enter preRejectItemsInViolation");
+
+    boolean preReject = false;                          // 🔒 start FALSE
+    List<Map> policyViolations = workflow.get("policyViolations");
+    if (policyViolations == null || policyViolations.isEmpty()) {
+        log.debug("No violations");
+        return false;
+    }
+
+    SailPointContext ctx = workflow.getContext();       // 👇 NEW
+
+    for (Map pv : policyViolations) {
+
+        String policyName = (String) pv.get("policyName");
+        Policy policy     = ctx.getObjectByName(Policy.class, policyName);   // 👇 NEW
+
+        /* ----------  SOD filter  ---------- */
+        if (policy != null) {
+            String type = policy.getType();             // Advanced | EntitlementSOD | RoleSOD
+            log.debug("Policy " + policyName + " type = " + type);
+
+            if ("EntitlementSOD".equalsIgnoreCase(type) ||
+                "RoleSOD".equalsIgnoreCase(type)) {
+                log.debug("Skip pre-reject for SOD policy: " + policyName);
+                continue;                               // go to next violation
+            }
+        }
+        /* ----------  Anything that reaches here WILL trigger pre-reject ---------- */
+        preReject = true;                              // set TRUE once, that’s enough
+        break;                                         // optional: exit loop early
+    }
+
+    log.error("Exit preRejectItemsInViolation : " + preReject);
+    return preReject;
+}
