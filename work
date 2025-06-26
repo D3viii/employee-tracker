@@ -459,3 +459,70 @@ public void aggregate(sailpoint.connector.Connector conn, java.util.List groups)
     }
 }
 
+
+import java.sql.*;
+import java.util.*;
+import org.json.*;
+import sailpoint.object.*;
+
+public void aggregate(sailpoint.connector.Connector connector, java.util.List groups) throws Exception {
+    final int PAGE_SIZE = 25000;
+    int pageNumber = 1;
+    int totalFetched = 0;
+    int totalCount = 0;
+
+    // Get SQL connection from WebServices connector
+    java.sql.Connection sqlConn = ((sailpoint.connector.WebServicesConnector) connector).getConnection();
+
+    while (true) {
+        // Construct raw SQL with hardcoded values (no bind vars!)
+        String sql = "call SN1_PLATFORM_COMMON_DB.SN1_ACCESSHUB_INTEGRATION.GETROLES_PAGINATION_NESTEDJSON(" 
+                     + pageNumber + ", " + PAGE_SIZE + ")";
+        CallableStatement st = sqlConn.prepareCall(sql);
+        st.execute();
+
+        ResultSet rs = st.getResultSet();
+        if (!rs.next()) {
+            break; // no more data
+        }
+
+        String jsonRaw = rs.getString(1);  // full escaped JSON string
+        if (jsonRaw == null || jsonRaw.trim().isEmpty()) {
+            break;
+        }
+
+        // Clean escaped JSON
+        String cleaned = jsonRaw.replaceAll("\\\\n", "").replaceAll("\\\\", "");
+        JSONObject parsed = new JSONObject(cleaned);
+
+        JSONArray roles = parsed.getJSONArray("ROLES");
+        totalCount = parsed.optInt("total_row_count", -1);
+        totalFetched += roles.length();
+
+        for (int i = 0; i < roles.length(); i++) {
+            JSONObject r = roles.getJSONObject(i);
+            Group g = new Group();
+
+            g.setNativeIdentity(r.optString("NAME"));
+            g.setDisplayName(r.optString("DESCRIPTION"));
+            g.setRequestable(true);
+
+            g.setAttribute("owner", r.optString("OWNER"));
+            g.setAttribute("isCurrent", r.optString("IS_CURRENT"));
+            g.setAttribute("isDefault", r.optString("IS_DEFAULT"));
+            g.setAttribute("isInherited", r.optString("IS_INHERITED"));
+
+            groups.add(g);
+        }
+
+        // Stop if we fetched all rows
+        if (totalCount > 0 && totalFetched >= totalCount) {
+            break;
+        }
+
+        // Next page
+        pageNumber++;
+    }
+}
+
+
