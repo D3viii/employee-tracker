@@ -401,3 +401,61 @@ for (Map pv : policyViolations) {
     List entsToReject = getViolatingEntsToReject(pv);   // existing code
     ...
 }
+
+/**  Snowflake – loop through GETROLES_PAGINATION_NESTEDJSON and build Groups  */
+import java.sql.*;
+import org.json.*;
+import sailpoint.object.Group;
+
+public void aggregate(sailpoint.connector.Connector conn, java.util.List groups) throws Exception {
+
+    // Cast so we can grab a real JDBC connection
+    java.sql.Connection sqlConn = ((sailpoint.connector.WebServicesConnector)conn).getConnection();
+
+    final int PAGE_SIZE = 25000;
+    int pageNumber = 1;
+    int totalFetched = 0;
+
+    while (true) {
+
+        CallableStatement st = sqlConn.prepareCall(
+            "{ call SN1_PLATFORM_COMMON_DB.SN1_ACCESSHUB_INTEGRATION.GETROLES_PAGINATION_NESTEDJSON(?, ?) }");
+        st.setInt(1, pageNumber);
+        st.setInt(2, PAGE_SIZE);
+        st.execute();
+
+        // Procedure returns ONE row, ONE column (variant/CLOB) – read it
+        ResultSet rs = st.getResultSet();
+        if (!rs.next()) { break; }      // safety check
+        String outerJson = rs.getString(1);
+
+        /*  ───── Parse escaped JSON ─────  */
+        JSONObject root = new JSONObject(outerJson.replace("\\n", ""));   // strip \n
+        JSONArray roleArray = root.getJSONArray("ROLES");
+        int totalRows    = root.getInt("total_row_count");                // overall
+        totalFetched    += roleArray.length();
+
+        /*  ───── Convert each JSON role to a SailPoint Group ─────  */
+        for (int i = 0; i < roleArray.length(); i++) {
+            JSONObject r = roleArray.getJSONObject(i);
+            Group g = new Group();
+
+            g.setNativeIdentity( r.getString("NAME")            );   // or ROLE_ID if provided
+            g.setDisplayName   ( r.getString("DESCRIPTION")     );
+            g.setRequestable   ("Y".equalsIgnoreCase(r.optString("IS_CURRENT"))); // example
+
+            g.setAttribute("owner",               r.optString("OWNER"));
+            g.setAttribute("isDefault",           r.optString("IS_DEFAULT"));
+            g.setAttribute("isInherited",         r.optString("IS_INHERITED"));
+
+            groups.add(g);
+        }
+
+        /*  ───── decide if we need the next page ───── */
+        if (totalFetched >= totalRows) {
+            break;                      // all pages done
+        }
+        pageNumber++;                   // next chunk
+    }
+}
+
