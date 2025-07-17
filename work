@@ -525,4 +525,34 @@ public void aggregate(sailpoint.connector.Connector connector, java.util.List gr
     }
 }
 
+try {
+    // Step 1: Extract the first item from "data" array (a stringified JSON array)
+    String embeddedJsonArrayString = theData.getAsJsonArray().get(0).getAsString();
 
+    // Step 2: Parse the string as a real JsonArray
+    JsonArray embeddedArray = JsonParser.parseString(embeddedJsonArrayString).getAsJsonArray();
+
+    // Step 3: Loop through each object in the embedded array
+    for (int i = 0; i < embeddedArray.size(); i++) {
+        JsonObject record = embeddedArray.get(i).getAsJsonObject();
+
+        if (record.has("ROLES") && record.get("ROLES").isJsonArray()) {
+            JsonArray rolesArray = record.getAsJsonArray("ROLES");
+
+            for (int j = 0; j < rolesArray.size(); j++) {
+                JsonObject role = rolesArray.get(j).getAsJsonObject();
+
+                Map<String, Object> roleMap = new HashMap<>();
+                roleMap.put("NAME", role.has("NAME") ? role.get("NAME").getAsString() : "");
+                roleMap.put("DESCRIPTION", role.has("DESCRIPTION") ? role.get("DESCRIPTION").getAsString() : "");
+                roleMap.put("OWNER", role.has("OWNER") ? role.get("OWNER").getAsString() : "");
+                // Add more fields if needed
+
+                processedResponse.add(roleMap);
+                wsaosfLogger.debug("Processed role: {}", roleMap);
+            }
+        }
+    }
+} catch (Exception e) {
+    wsaosfLogger.error("Failed to extract roles from response: {}", e.toString());
+}
