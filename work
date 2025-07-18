@@ -590,3 +590,43 @@ for (int i = 0; i < embeddedArray.size(); i++) {
     }
 }
 
+
+
+
+
+
+try {
+    // Step 1: Get the string inside data[0]
+    String embeddedJsonArrayString = theData.getAsJsonArray().get(0).getAsString();
+
+    // Step 2: Parse that string into a real JSON array
+    JsonArray embeddedArray = JsonParser.parseString(embeddedJsonArrayString).getAsJsonArray();
+
+    // Step 3: Extract ROLES from each embedded object
+    for (int i = 0; i < embeddedArray.size(); i++) {
+        JsonObject record = embeddedArray.get(i).getAsJsonObject();
+
+        if (record.has("ROLES") && record.get("ROLES").isJsonArray()) {
+            JsonArray rolesArray = record.getAsJsonArray("ROLES");
+
+            for (int j = 0; j < rolesArray.size(); j++) {
+                JsonObject role = rolesArray.get(j).getAsJsonObject();
+
+                Map<String, Object> roleMap = new HashMap<>();
+                roleMap.put("NAME", role.has("NAME") ? role.get("NAME").getAsString() : "");
+                roleMap.put("DESCRIPTION", role.has("DESCRIPTION") ? role.get("DESCRIPTION").getAsString() : "");
+                roleMap.put("OWNER", role.has("OWNER") ? role.get("OWNER").getAsString() : "");
+                // Add more fields as needed
+
+                processedResponse.add(roleMap);
+                wsaosfLogger.debug("Processed role: {}", roleMap);
+            }
+        } else {
+            wsaosfLogger.debug("No ROLES found in record index {}", i);
+        }
+    }
+} catch (Exception e) {
+    wsaosfLogger.error("Failed to extract roles from response: {}", e.toString());
+}
+
+
