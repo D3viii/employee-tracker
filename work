@@ -556,3 +556,37 @@ try {
 } catch (Exception e) {
     wsaosfLogger.error("Failed to extract roles from response: {}", e.toString());
 }
+
+
+
+JsonArray rawData = jsonObject.getAsJsonArray("data");
+
+// Step 1: Get the string from the first and only element in "data"
+String embeddedJsonArrayString = rawData.get(0).getAsString();
+
+// Step 2: Parse that string into a real JsonArray
+JsonArray embeddedArray = JsonParser.parseString(embeddedJsonArrayString).getAsJsonArray();
+
+for (int i = 0; i < embeddedArray.size(); i++) {
+    JsonObject record = embeddedArray.get(i).getAsJsonObject();
+
+    if (record.has("ROLES") && record.get("ROLES").isJsonArray()) {
+        JsonArray roles = record.getAsJsonArray("ROLES");
+
+        for (int j = 0; j < roles.size(); j++) {
+            JsonObject role = roles.get(j).getAsJsonObject();
+
+            String roleName = role.has("NAME") ? role.get("NAME").getAsString() : "Unnamed";
+            String description = role.has("DESCRIPTION") ? role.get("DESCRIPTION").getAsString() : "";
+
+            wsaosfLogger.debug("Role Found - Name: {}, Description: {}", roleName, description);
+
+            // Optional: add to processedResponse
+            // Map<String, Object> roleMap = new HashMap<>();
+            // roleMap.put("NAME", roleName);
+            // roleMap.put("DESCRIPTION", description);
+            // processedResponse.add(roleMap);
+        }
+    }
+}
+
