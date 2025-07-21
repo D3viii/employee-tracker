@@ -630,3 +630,21 @@ try {
 }
 
 
+
+
+
+
+// BeanShell-safe way to build headers
+List headers = new ArrayList();
+headers.add(new Pair("Content-Type", "application/json"));
+
+// If requestEndPoint.getHeader() returns a Map and you want to include its values:
+Map additionalHeaders = requestEndPoint.getHeader();
+Iterator keys = additionalHeaders.keySet().iterator();
+while (keys.hasNext()) {
+    String key = (String) keys.next();
+    String value = (String) additionalHeaders.get(key);
+    headers.add(new Pair(key, value));
+}
+
+
