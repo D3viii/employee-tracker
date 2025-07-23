@@ -647,4 +647,17 @@ while (keys.hasNext()) {
     headers.add(new Pair(key, value));
 }
 
+int postRetries = 0;
+String pagedResponse = null;
+
+while (pagedResponse == null && postRetries < 3) {
+    try {
+        pagedResponse = restClient.executePost(statementStatusUrl, headers, postBody);
+    } catch (Exception ex) {
+        log.error("Retry {} failed for POST: {}", postRetries, ex.getMessage());
+    }
+    postRetries++;
+    Thread.sleep(1000);  // optional wait
+}
+
 
