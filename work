@@ -661,3 +661,16 @@ while (pagedResponse == null && postRetries < 3) {
 }
 
 
+
+Map transientValues = application.getAttributeValue("transientValues");
+String refId = "";
+
+if (transientValues != null && transientValues.get("referencedId") != null) {
+    refId = transientValues.get("referencedId").toString();
+}
+
+String pageNo = "561";
+log.error(ruleName + " - Hardcoding Page Number: " + pageNo);
+log.error(ruleName + " - Using referenceId: " + refId);
+
+
