@@ -699,3 +699,43 @@ public void refreshGroups(Iterator groups) {
     }
 }
 
+
+
+import sailpoint.object.*;
+import java.util.*;
+
+// This rule filters groups during aggregation
+// Only keeps entries where "permissions" contains specific keywords
+
+List filtered = new ArrayList();
+
+if (source != null) {
+    Iterator it = source.iterator();
+
+    while (it.hasNext()) {
+        Map group = (Map) it.next();
+        String perm = (group.get("permissions") != null) ? group.get("permissions").toString().toLowerCase() : "";
+
+        // ✅ Add your filtering keywords here
+        if (perm.contains("administration") ||
+            perm.contains("approval queue") ||
+            perm.contains("client onboarding") ||
+            perm.contains("books closed") ||
+            perm.contains("cusip inquiry") ||
+            perm.contains("masterfile") ||
+            perm.contains("pricing")) {
+
+            log.error("✅ Keeping group: " + perm);
+            filtered.add(group);
+        } else {
+            log.error("❌ Removing group: " + perm);
+        }
+    }
+}
+
+// Return filtered list
+return filtered;
+
+
+
+
