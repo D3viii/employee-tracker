@@ -929,3 +929,49 @@ if (response != null && response instanceof List) {
 }
 
 return results;
+
+
+import java.util.*;
+import sailpoint.object.AccountGroup;
+
+List results = new ArrayList();
+
+if (response != null && response instanceof List) {
+    for (int i = 0; i < response.size(); i++) {
+        Object obj = response.get(i);
+        if (obj instanceof Map) {
+            Map record = (Map) obj;
+            String permissions = (String) record.get("permissions");
+            String mnemonic = (String) record.get("mnemonic");
+            String userId = (String) record.get("userId");
+
+            if (permissions != null) {
+                String lowerPerm = permissions.toLowerCase();
+                if (lowerPerm.contains("administration") ||
+                    lowerPerm.contains("approval queue") ||
+                    lowerPerm.contains("books closed") ||
+                    lowerPerm.contains("client onboarding") ||
+                    lowerPerm.contains("cusip inquiry") ||
+                    lowerPerm.contains("masterfile") ||
+                    lowerPerm.contains("pricing")) {
+
+                    // Create AccountGroup object
+                    AccountGroup group = new AccountGroup();
+                    group.setNativeIdentity(mnemonic + "_" + permissions);
+                    group.setDisplayName(permissions);
+                    group.setAttribute("mnemonic", mnemonic);
+                    group.setAttribute("userId", userId);
+                    group.setAttribute("permissions", permissions);
+
+                    results.add(group);
+                }
+            }
+        }
+    }
+}
+
+// Debug log
+log.info("Filtered group results count: " + results.size());
+
+return results;
+
