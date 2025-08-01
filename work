@@ -868,3 +868,30 @@ try {
 return null;
 
 
+import java.util.*;
+import java.util.stream.*;
+
+List<Map<String, String>> results = new ArrayList<Map<String, String>>();
+
+// Assuming 'response' is the JSON list returned from your connector call
+// Replace this with your actual response fetching logic
+for (Map<String, Object> record : response) {
+    String permissions = (String) record.get("permissions");
+    
+    if (permissions != null) {
+        String lowerPerm = permissions.toLowerCase();
+        if (lowerPerm.contains("administration") ||
+            lowerPerm.contains("approval queue") ||
+            lowerPerm.contains("books closed") ||
+            lowerPerm.contains("client onboarding") ||
+            lowerPerm.contains("cusip inquiry") ||
+            lowerPerm.contains("masterfile") ||
+            lowerPerm.contains("pricing")) {
+                
+            results.add(record);
+        }
+    }
+}
+
+return results;
+
