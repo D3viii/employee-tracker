@@ -674,3 +674,28 @@ log.error(ruleName + " - Hardcoding Page Number: " + pageNo);
 log.error(ruleName + " - Using referenceId: " + refId);
 
 
+
+
+import sailpoint.object.Group;
+
+public void refreshGroups(Iterator groups) {
+    while (groups.hasNext()) {
+        Group group = (Group) groups.next();
+
+        String groupName = group.getName() != null ? group.getName() : "";
+
+        // Filter out groups that do not match
+        if (!(groupName.contains("Administration") ||
+              groupName.contains("Approval Queue") ||
+              groupName.contains("Books Closed") ||
+              groupName.contains("Client Onboarding") ||
+              groupName.contains("CUSIP Inquiry") ||
+              groupName.contains("Masterfile") ||
+              groupName.contains("Pricing"))) 
+        {
+            // Remove unwanted groups
+            groups.remove();
+        }
+    }
+}
+
