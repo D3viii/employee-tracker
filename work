@@ -975,3 +975,49 @@ log.info("Filtered group results count: " + results.size());
 
 return results;
 
+import java.util.*;
+import sailpoint.object.AccountGroup;
+
+List results = new ArrayList();
+
+log.info("DEBUG - Response size: " + (response != null ? response.size() : "null"));
+
+if (response != null && response instanceof List) {
+    for (int i = 0; i < response.size(); i++) {
+        Object obj = response.get(i);
+        if (obj instanceof Map) {
+            Map record = (Map) obj;
+            log.info("DEBUG - Raw record: " + record.toString());
+
+            String permissions = (String) record.get("permissions");
+            String mnemonic = (String) record.get("mnemonic");
+            String userId = (String) record.get("userId");
+
+            if (permissions != null) {
+                String lowerPerm = permissions.toLowerCase();
+                if (lowerPerm.contains("administration") ||
+                    lowerPerm.contains("approval queue") ||
+                    lowerPerm.contains("books closed") ||
+                    lowerPerm.contains("client onboarding") ||
+                    lowerPerm.contains("cusip inquiry") ||
+                    lowerPerm.contains("masterfile") ||
+                    lowerPerm.contains("pricing")) {
+
+                    AccountGroup group = new AccountGroup();
+                    group.setNativeIdentity(mnemonic + "_" + permissions);
+                    group.setDisplayName(permissions);
+                    group.setAttribute("mnemonic", mnemonic);
+                    group.setAttribute("userId", userId);
+                    group.setAttribute("permissions", permissions);
+
+                    log.info("DEBUG - Adding group: " + group.toString());
+                    results.add(group);
+                }
+            }
+        }
+    }
+}
+
+log.info("DEBUG - Total groups returned: " + results.size());
+return results;
+
