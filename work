@@ -895,3 +895,37 @@ for (Map<String, Object> record : response) {
 
 return results;
 
+
+import java.util.*;
+import sailpoint.object.Application;
+import sailpoint.object.GroupDefinition;
+
+List results = new ArrayList();
+
+// Assuming the variable 'response' is a List of Map objects
+if (response != null && response instanceof List) {
+    for (int i = 0; i < response.size(); i++) {
+        Object obj = response.get(i);
+        if (obj instanceof Map) {
+            Map record = (Map) obj;
+            String permissions = (String) record.get("permissions");
+            
+            if (permissions != null) {
+                String lowerPerm = permissions.toLowerCase();
+                if (lowerPerm.contains("administration") ||
+                    lowerPerm.contains("approval queue") ||
+                    lowerPerm.contains("books closed") ||
+                    lowerPerm.contains("client onboarding") ||
+                    lowerPerm.contains("cusip inquiry") ||
+                    lowerPerm.contains("masterfile") ||
+                    lowerPerm.contains("pricing")) {
+                    
+                    // Add matching record to results
+                    results.add(record);
+                }
+            }
+        }
+    }
+}
+
+return results;
