@@ -738,4 +738,34 @@ return filtered;
 
 
 
+import java.util.*;
+
+List filtered = new ArrayList();
+
+if (groups != null) {
+    Iterator it = groups.iterator();
+
+    while (it.hasNext()) {
+        Map group = (Map) it.next();
+        String perm = (group.get("permissions") != null) ? group.get("permissions").toString().toLowerCase() : "";
+
+        // ✅ Filter keywords
+        if (perm.contains("administration") ||
+            perm.contains("approval queue") ||
+            perm.contains("client onboarding") ||
+            perm.contains("books closed") ||
+            perm.contains("cusip inquiry") ||
+            perm.contains("masterfile") ||
+            perm.contains("pricing")) {
+
+            log.error("✅ Keeping group: " + perm);
+            filtered.add(group);
+        } else {
+            log.error("❌ Removing group: " + perm);
+        }
+    }
+}
+
+return filtered;
+
 
