@@ -1021,3 +1021,51 @@ if (response != null && response instanceof List) {
 log.info("DEBUG - Total groups returned: " + results.size());
 return results;
 
+
+import sailpoint.object.*;
+import sailpoint.tools.*;
+import org.apache.commons.httpclient.methods.*;
+import org.apache.commons.httpclient.*;
+import org.json.*;
+
+List<AccountGroup> results = new ArrayList<>();
+
+try {
+    // Create HTTP client
+    HttpClient client = new HttpClient();
+    GetMethod get = new GetMethod("https://drapi.qa.bnymellon.net/secadmin-api/users/all-access");
+    get.addRequestHeader("Authorization", "Bearer " + YOUR_TOKEN);
+    get.addRequestHeader("Content-Type", "application/json");
+
+    int status = client.executeMethod(get);
+    if (status == 200) {
+        String response = get.getResponseBodyAsString();
+        JSONArray arr = new JSONArray(response);
+
+        for (int i = 0; i < arr.length(); i++) {
+            JSONObject obj = arr.getJSONObject(i);
+
+            // ✅ Filter only mnemonic == ADR
+            if (obj.has("mnemonic") && "ADR".equalsIgnoreCase(obj.getString("mnemonic"))) {
+                String groupName = obj.optString("permissions", "Unknown");
+                String groupId = obj.optString("userId", "Unknown");
+
+                AccountGroup ag = new AccountGroup();
+                ag.setDisplayName(groupName);
+                ag.setNativeIdentity(groupId);
+                ag.setAttribute("mnemonic", obj.getString("mnemonic"));
+                ag.setAttribute("permissions", groupName);
+
+                results.add(ag);
+            }
+        }
+    } else {
+        log.error("Group Refresh Rule - HTTP call failed with status: " + status);
+    }
+
+} catch (Exception e) {
+    log.error("Error in Group Refresh Rule: " + e);
+}
+
+return results;
+
