@@ -800,3 +800,47 @@ if (groups != null) {
 
 return filtered;
 
+import java.util.*;
+
+List filtered = new ArrayList();
+
+try {
+    // Check if groups is valid and iterable
+    if (groups != null && groups instanceof java.util.List) {
+
+        for (Object obj : (List) groups) {
+            if (obj instanceof Map) {
+                Map group = (Map) obj;
+
+                String perm = "";
+                if (group.get("permissions") != null) {
+                    perm = group.get("permissions").toString().toLowerCase();
+                }
+
+                // Filter keywords
+                if (perm.contains("administration") ||
+                    perm.contains("approval queue") ||
+                    perm.contains("client onboarding") ||
+                    perm.contains("books closed") ||
+                    perm.contains("cusip inquiry") ||
+                    perm.contains("masterfile") ||
+                    perm.contains("pricing")) {
+
+                    log.error("✅ Keeping group: " + perm);
+                    filtered.add(group);
+                } else {
+                    log.error("❌ Removing group: " + perm);
+                }
+            }
+        }
+    } else {
+        log.error("⚠️ 'groups' is null or not a List. Type: " + 
+                  (groups == null ? "null" : groups.getClass().getName()));
+    }
+} catch (Exception e) {
+    log.error("🚨 Error in Group Refresh Rule: " + e);
+}
+
+return filtered;
+
+
