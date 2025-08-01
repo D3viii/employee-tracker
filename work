@@ -843,4 +843,28 @@ try {
 
 return filtered;
 
+import java.util.*;
+
+try {
+    // Log all incoming bindings
+    log.error("=== DEBUG: Incoming Bindings ===");
+    if (bindingVariables != null) {
+        for (Object key : bindingVariables.keySet()) {
+            log.error("Variable: " + key + " | Type: " + 
+                (bindingVariables.get(key) == null ? "null" : bindingVariables.get(key).getClass().getName()));
+        }
+    } else {
+        log.error("No binding variables found!");
+    }
+
+    if (groups == null) {
+        log.error("⚠️ 'groups' is NULL or not being passed to this rule.");
+    } else {
+        log.error("✅ Groups object received, Type: " + groups.getClass().getName());
+    }
+} catch (Exception e) {
+    log.error("🚨 Error during debug: " + e);
+}
+return null;
+
 
